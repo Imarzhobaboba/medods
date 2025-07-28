@@ -2,7 +2,6 @@ package service
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"log"
@@ -42,13 +41,14 @@ func (s *RefreshService) RefreshTokens(oldAccessToken, oldRefreshToken, userAgen
 	}
 
 	// 2. Декодируем refresh token из base64
-	decodedRefresh, err := base64.StdEncoding.DecodeString(oldRefreshToken)
-	if err != nil {
-		return "", "", errors.New("invalid refresh token format")
-	}
+	// decodedRefresh, err := base64.StdEncoding.DecodeString(oldRefreshToken)
+	// if err != nil {
+	// 	return "", "", errors.New("invalid refresh token format")
+	// }
 
 	// 3. Ищем запись в БД по refresh token
-	authRecord, err := s.repo.FindByRefreshToken(string(decodedRefresh))
+	// authRecord, err := s.repo.FindByRefreshToken(string(decodedRefresh))
+	authRecord, err := s.repo.FindByRefreshToken(oldRefreshToken)
 	if err != nil {
 		return "", "", errors.New("refresh token not found")
 	}

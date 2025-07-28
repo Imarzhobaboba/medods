@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/Imarzhobaboba/medods/models"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -32,10 +33,22 @@ func (r *AuthRepository) InvalidateRefreshToken(guid uuid.UUID) error {
 }
 
 // FindByRefreshToken ищет запись по хешу refresh токена
-func (r *AuthRepository) FindByRefreshToken(tokenHash string) (*models.Auth, error) {
-	var auth models.Auth
-	err := r.db.Where("refresh_token_hash = ?", tokenHash).First(&auth).Error
-	return &auth, err
+func (r *AuthRepository) FindByRefreshToken(token string) (*models.Auth, error) {
+	// Получаем все активные записи для данного токена (можно добавить фильтр по IsValid если нужно)
+	var authRecords []models.Auth
+	if err := r.db.Find(&authRecords).Error; err != nil {
+		return nil, err
+	}
+
+	// Проверяем каждый хеш с помощью bcrypt
+	for _, record := range authRecords {
+		err := bcrypt.CompareHashAndPassword([]byte(record.RefreshTokenHash), []byte(token))
+		if err == nil {
+			return &record, nil
+		}
+	}
+
+	return nil, gorm.ErrRecordNotFound
 }
 
 // InvalidateAllTokens помечает все токены пользователя как невалидные
