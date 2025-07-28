@@ -27,6 +27,9 @@ func main() {
 
 	meHandler := api.NewMeHandler(os.Getenv("SECRET"))
 
+	logoutService := service.NewLogoutService(authRepo, os.Getenv("SECRET"))
+	logoutHandler := api.NewLogoutHandler(logoutService)
+
 	// Настройка роутера
 	r := gin.Default()
 
@@ -35,7 +38,7 @@ func main() {
 	authGroup.Use(meHandler.Middleware())
 	{
 		authGroup.GET("/me", meHandler.MeHandler)
-		// Здесь позже добавим /logout
+		authGroup.POST("/logout", logoutHandler.LogoutHandler)
 	}
 
 	// Роуты
