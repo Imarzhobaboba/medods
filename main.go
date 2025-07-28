@@ -22,11 +22,15 @@ func main() {
 	authService := service.NewAuthService(authRepo, os.Getenv("SECRET"))
 	authHandler := api.NewAuthHandler(authService)
 
+	refreshService := service.NewRefreshService(authRepo, os.Getenv("SECRET"), os.Getenv("WEBHOOK_URL"))
+	refreshHandler := api.NewRefreshHandler(refreshService)
+
 	// Настройка роутера
 	r := gin.Default()
 
 	// Роуты
 	r.POST("/auth", authHandler.CreateAuthHandler)
+	r.POST("/refresh", refreshHandler.RefreshHandler)
 
 	// Запуск сервера
 	log.Println("Server running on :8080")

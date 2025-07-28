@@ -51,3 +51,5 @@ func (h *AuthHandler) CreateAuthHandler(c *gin.Context) {
 		RefreshToken: refreshToken,
 	})
 }
+
+// Здесь хэндлер для refresh. Его надо будет перенести в отдельный файл

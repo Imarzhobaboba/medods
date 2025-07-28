@@ -1,9 +1,12 @@
 package service
 
 import (
-	"crypto/rand"
+	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/Imarzhobaboba/medods/repository"
@@ -84,20 +87,48 @@ func (s *RefreshService) RefreshTokens(oldAccessToken, oldRefreshToken, userAgen
 // Вспомогательные методы
 func (s *RefreshService) generateNewTokenPair(guid uuid.UUID, userAgent, ip string) (string, string, error) {
 	// Аналогично GenerateTokens из auth.go
-	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"guid": guid.String(),
-		"exp":  time.Now().Add(15 * time.Minute).Unix(), // Access token живёт 15 минут
-	})
-
-	buf := make([]byte, 32) // 32 байта это длина refresh токена
-	if _, err := rand.Read(buf); err != nil {
-		return "", err
+	// 1. Генерация access token (JWT)
+	var err error
+	var accessToken string
+	accessToken, err = generateAccessToken(guid, s.jwtSecret)
+	if err != nil {
+		return "", "", err
+	}
+	// 2. Генерация refresh token (рандомная строка теперь base64)
+	var refreshToken string
+	refreshToken, err = generateRefreshToken()
+	if err != nil {
+		return "", "", err
 	}
 
-	return token.SignedString(s.jwtSecret), base64.StdEncoding.EncodeToString(buf), nil
+	return accessToken, refreshToken, nil
 }
 
+// Для функции отправки вебхука можно создать новый пакет, но я хочу ее оставить здесь
 func (s *RefreshService) sendIPChangeWebhook(guid uuid.UUID, oldIP, newIP string) {
-	// Реализация отправки webhook
-	// ...
+	payload := map[string]interface{}{
+		"event_type": "ip_change",
+		"user_id":    guid.String(),
+		"old_ip":     oldIP,
+		"new_ip":     newIP,
+		"timestamp":  time.Now().UTC().Format(time.RFC3339),
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Failed to marshal webhook payload: %v", err)
+		return
+	}
+
+	// URL webhook должен быть задан в конфигурации
+	resp, err := http.Post(s.webhookURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Printf("Webhook request failed: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		log.Printf("Webhook returned error status: %d", resp.StatusCode)
+	}
 }
