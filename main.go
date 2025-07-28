@@ -25,8 +25,18 @@ func main() {
 	refreshService := service.NewRefreshService(authRepo, os.Getenv("SECRET"), os.Getenv("WEBHOOK_URL"))
 	refreshHandler := api.NewRefreshHandler(refreshService)
 
+	meHandler := api.NewMeHandler(os.Getenv("SECRET"))
+
 	// Настройка роутера
 	r := gin.Default()
+
+	// Защищённые эндпоинты
+	authGroup := r.Group("/")
+	authGroup.Use(meHandler.Middleware())
+	{
+		authGroup.GET("/me", meHandler.MeHandler)
+		// Здесь позже добавим /logout
+	}
 
 	// Роуты
 	r.POST("/auth", authHandler.CreateAuthHandler)
