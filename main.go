@@ -6,12 +6,29 @@ import (
 
 	"github.com/Imarzhobaboba/medods/api"
 	"github.com/Imarzhobaboba/medods/database"
+	_ "github.com/Imarzhobaboba/medods/docs"
 	"github.com/Imarzhobaboba/medods/models"
 	"github.com/Imarzhobaboba/medods/repository"
 	"github.com/Imarzhobaboba/medods/service"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Auth API
+// @version 1.0
+// @description API для авторизации
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
+// @Security BearerAuth
+// @param Authorization header string true "Authentication" default(Bearer <token>)
+
+// @host localhost:8080
+// @BasePath /
 func main() {
 	// Инициализация БД
 	db := database.SetupDB()
@@ -32,6 +49,9 @@ func main() {
 
 	// Настройка роутера
 	r := gin.Default()
+
+	// Swagger UI
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Защищённые эндпоинты
 	authGroup := r.Group("/")

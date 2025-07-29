@@ -18,7 +18,7 @@ func NewAuthHandler(service *service.AuthService) *AuthHandler {
 
 // AuthRequest — тело запроса для /auth
 type AuthRequest struct {
-	Guid uuid.UUID `json:"guid" binding:"required"`
+	Guid uuid.UUID `json:"guid" binding:"required" example:"60601fee-2bf1-4721-ae6f-7636e79a0cba"`
 }
 
 // AuthResponse — ответ с токенами
@@ -28,6 +28,24 @@ type AuthResponse struct {
 }
 
 // CreateAuthHandler обрабатывает POST /auth
+
+// @title Medods Auth API
+// @version 1.0
+// @description API для аутентификации через JWT токены
+// @host localhost:8080
+// @BasePath /
+
+// AuthRequest godoc
+// @Summary Получить токены
+// @Description Генерирует access и refresh токены для указанного GUID
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body AuthRequest true "GUID пользователя"
+// @Success 200 {object} AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth [post]
 func (h *AuthHandler) CreateAuthHandler(c *gin.Context) {
 	var req AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

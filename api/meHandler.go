@@ -22,6 +22,14 @@ type MeResponse struct {
 	Guid string `json:"guid"`
 }
 
+// @Summary Получить информацию о текущем пользователе
+// @Description Возвращает GUID текущего аутентифицированного пользователя
+// @Tags Auth
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} MeResponse
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Router /me [get]
 func (h *MeHandler) MeHandler(c *gin.Context) {
 	// Получаем GUID из контекста (установленного в middleware)
 	guid, exists := c.Get("guid")

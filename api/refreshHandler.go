@@ -23,6 +23,24 @@ type RefreshRequest struct {
 }
 
 // RefreshHandler обрабатывает POST /refresh
+
+// @title Medods Auth API
+// @version 1.0
+// @description API для аутентификации через JWT токены
+// @host localhost:8080
+// @BasePath /
+
+// AuthRequest godoc
+// @Summary Получить токены
+// @Description Генерирует access и refresh токены для указанного GUID
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body RefreshRequest true "access токен и refresh токен"
+// @Success 200 {object} AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /refresh [post]
 func (h *RefreshHandler) RefreshHandler(c *gin.Context) {
 	var req RefreshRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

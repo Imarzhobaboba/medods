@@ -54,22 +54,3 @@ func (s *AuthService) GenerateTokens(guid uuid.UUID, userAgent, ip string) (acce
 
 	return accessToken, refreshToken, nil
 }
-
-// // generateAccessToken создаёт JWT токен
-// func (s *AuthService) generateAccessToken(guid uuid.UUID) (string, error) {
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-// 		"guid": guid.String(),
-// 		"exp":  time.Now().Add(15 * time.Minute).Unix(), // Access token живёт 15 минут
-// 	})
-
-// 	return token.SignedString(s.jwtSecret)
-// }
-
-// // generateRefreshToken создаёт случайный токен в base64
-// func (s *AuthService) generateRefreshToken() (string, error) {
-// 	buf := make([]byte, 32) // 32 байта это длина refresh токена
-// 	if _, err := rand.Read(buf); err != nil {
-// 		return "", err
-// 	}
-// 	return base64.StdEncoding.EncodeToString(buf), nil
-// }

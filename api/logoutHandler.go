@@ -16,18 +16,16 @@ func NewLogoutHandler(service *service.LogoutService) *LogoutHandler {
 	return &LogoutHandler{service: service}
 }
 
-// // AuthRequest — тело запроса для /auth
-// type LogoutRequest struct {
-// 	Guid uuid.UUID `json:"guid" binding:"required"`
-// }
-
-// // AuthResponse — ответ с токенами
-// type LogoutResponse struct {
-// 	AccessToken  string `json:"access_token"`
-// 	RefreshToken string `json:"refresh_token"`
-// }
-
 // LogoutHandler обрабатывает POST /logout
+
+// @Summary Выход из системы
+// @Description Инвалидирует переданный токен
+// @Tags Auth
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]string "Успешный выход"
+// @Failure 401 {object} map[string]string "Ошибка выхода"
+// @Router /logout [post]
 func (h *LogoutHandler) LogoutHandler(c *gin.Context) {
 	// Получаем access token из контекста (уже проверен в middleware)
 	authHeader := c.GetHeader("Authorization")

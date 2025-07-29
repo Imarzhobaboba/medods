@@ -1,0 +1,160 @@
+basePath: /
+definitions:
+  api.AuthRequest:
+    properties:
+      guid:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - guid
+    type: object
+  api.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  api.MeResponse:
+    properties:
+      guid:
+        type: string
+    type: object
+  api.RefreshRequest:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для авторизации
+  title: Auth API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: Генерирует access и refresh токены для указанного GUID
+      parameters:
+      - description: GUID пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить токены
+      tags:
+      - Auth
+  /logout:
+    post:
+      description: Инвалидирует переданный токен
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Ошибка выхода
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Выход из системы
+      tags:
+      - Auth
+  /me:
+    get:
+      description: Возвращает GUID текущего аутентифицированного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.MeResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о текущем пользователе
+      tags:
+      - Auth
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Генерирует access и refresh токены для указанного GUID
+      parameters:
+      - description: access токен и refresh токен
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить токены
+      tags:
+      - Auth
+security:
+- BearerAuth: []
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
